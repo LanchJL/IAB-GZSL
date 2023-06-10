@@ -8,7 +8,7 @@ $ pip install -r requirements.txt
 ```
 
 ## Datasets
-The splits of dataset and its attributes can be found in [data](https://drive.google.com/file/d/1bCZ28zJZNzsRjlHxH_vh2-9d7Ln1GgjE/view)[1]. Please download the data folder and place it in ./data/.\\
+The splits of dataset and its attributes can be found in [data](https://drive.google.com/file/d/1bCZ28zJZNzsRjlHxH_vh2-9d7Ln1GgjE/view)[1]. Please download the data folder and place it in ./data/.
 
 Set the --root in opt.py as your code path.
 
