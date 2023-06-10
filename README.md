@@ -8,5 +8,6 @@ $ pip install -r requirements.txt
 ```
 
 ## Datasets
-The splits of dataset and its attributes can be found in [data]([https://github.com/your/repository/blob/master/CONTRIBUTING.md](https://github.com/wenjiaXu/APN-ZSL)) .
+The splits of dataset and its attributes can be found in [data](https://github.com/wenjiaXu/APN-ZSL).
+
 
