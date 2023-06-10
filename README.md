@@ -12,7 +12,7 @@ The splits of dataset and its attributes can be found in [data](https://drive.go
 
 Set the --root in opt.py as your code path.
 
-Please download CUB, AWA2, SUN, FLO datasets, and set the --image_root in opt.py to the datasets.\\
+Please download CUB, AWA2, SUN, FLO datasets, and set the --image_root in opt.py to the datasets.
 
 Please download pretrained resnet [weights](https://drive.google.com/file/d/1c5scuU0kZS5a9Rz3kf5T0UweCvOpGsh2/view)[1] and place it in ./pretrained_models/
 
