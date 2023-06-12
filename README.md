@@ -15,9 +15,17 @@ Set the --root in opt.py as your code path.
 Please download CUB, AWA2, SUN, FLO datasets, and set the --image_root in opt.py to the datasets.
 
 Please download pretrained resnet [weights](https://drive.google.com/file/d/1c5scuU0kZS5a9Rz3kf5T0UweCvOpGsh2/view)[1] and place it in ./pretrained_models/
+## Test
+You can evaluate our [pretrained model](https://drive.google.com/file/d/1DDMeK4S0AMuo2MSPgBzQWJgSyx7XgIwt/view?usp=sharing).
+
+Please specify the --model_path in opt.py and then run:
+
+```shell
+python test.py --att_size 85 --image_size 224 --calibrated_stacking 2.0 --seen_classes 40 --nclasses 50
+```
 
 ## Train
-Please run IAB.py, for example:
+If you wish to try training our model from scratch, please run IAB.py, for example:
 ```shell
 python IAB.py --att_size 85 --image_size 224 --t 8 --Lp1 10 --gamma 2 --delta 2.0 --calibrated_stacking 2.0 --seen_classes 40 --nclasses 50
 ```
