@@ -12,7 +12,6 @@ from model import Encoder,NAA
 from utils import Result,test_gzsl,Loss_fn,SimMaxLoss,SimMinLoss
 import torch.optim as optim
 from torch.autograd import Variable
-import itertools
 import torch.nn.functional as F
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 '''manual_seed'''
@@ -30,7 +29,7 @@ if opt.cuda:
 
 '''get dataloader'''
 data = DATA_LOADER(opt)
-opt.test_seen_label = data.test_seen_label  # weird
+opt.test_seen_label = data.test_seen_label
 
 # define test_classes
 if opt.image_type == 'test_unseen_small_loc':
@@ -76,21 +75,16 @@ class_attribute = data.attribute
 print('Create Model...')
 model = Encoder(opt)
 NAA_model = NAA(opt,group_dic,data)
-criterion = nn.CrossEntropyLoss()
-criterion_regre = nn.MSELoss()
 CAM_CRITERION = [SimMaxLoss(metric='cos',alpha=0.05).cuda(),SimMinLoss(metric='cos').cuda(),SimMaxLoss(metric='cos',alpha=0.05).cuda()]
 '''cuda'''
 if torch.cuda.is_available():
     model.cuda()
     NAA_model.cuda()
     class_attribute = class_attribute.cuda()
-    criterion_regre = criterion_regre.cuda()
-    criterion = criterion.cuda()
 
 '''Save results'''
 result_zsl = Result()
 result_gzsl = Result()
-
 
 print('Train and test...')
 for epoch in range(opt.nepoch):
@@ -143,10 +137,10 @@ for epoch in range(opt.nepoch):
             input_v = input_v.cuda()
             label_v = label_v.cuda()
         top_k,v_logits,fg_feature,bg_feature = model(input_v,attribute_seen)
-        loss = Loss_fn(opt,label_v,neighbor_label,top_k,CAM_CRITERION,fg_feature,bg_feature,v_logits,model.vars)
+        loss = Loss_fn(opt,label_v,neighbor_label,top_k,CAM_CRITERION,fg_feature,bg_feature,v_logits,model.vars,realtrain)
         loss.backward()
         optimizer.step()
-        to_average.append((-loss).item() / opt.gamma)
+        to_average.append(loss.item() / opt.gamma)
     print('\n[Epoch %d]'% (epoch + 1),'Loss=',sum(to_average) / len(to_average))
 
     if (i + 1) == batch or (i + 1) % 200 == 0:
@@ -174,5 +168,6 @@ for epoch in range(opt.nepoch):
               format(epoch + 1, acc_GZSL_unseen, acc_GZSL_seen, acc_GZSL_H, result_gzsl.best_acc_U,
                      result_gzsl.best_acc_S,
                      result_gzsl.best_acc, result_gzsl.best_iter))
-        print('current layer seen acc{:.1f}%,unseen{:.1f}%,H:{:.1f}%'.format(layer_acc_seen,layer_acc_unseen,acc_layer_H))
+
+
 

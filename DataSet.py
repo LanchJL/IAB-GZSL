@@ -340,45 +340,72 @@ def get_loader(opt, data):
     Rsize = int(opt.image_size*8./7.)
     Isize = opt.image_size
     if opt.transform_complex:
-        train_transform = []
-        train_transform.extend([
-            transforms.Resize(Rsize),
-            transforms.RandomCrop(Isize),
-            transforms.RandomHorizontalFlip(0.5),
-            transforms.ToTensor(),
-            normalize
-        ])
-        train_transform = transforms.Compose(train_transform)
-        test_transform = []
-        test_transform.extend([
-            transforms.Resize(Rsize),
-            transforms.RandomHorizontalFlip(0.5),
-            transforms.ToTensor(),
-            normalize
-        ])
-        test_transform = transforms.Compose(test_transform)
+        if opt.random_crop:
+            train_transform = []
+            train_transform.extend([
+                transforms.Resize(Rsize),
+                transforms.RandomCrop(Isize),
+                transforms.RandomHorizontalFlip(0.5),
+                transforms.ToTensor(),
+                normalize
+            ])
+            train_transform = transforms.Compose(train_transform)
+            test_transform = []
+            test_transform.extend([
+                transforms.Resize(Isize),
+                transforms.RandomHorizontalFlip(0.5),
+                transforms.ToTensor(),
+                normalize
+            ])
+            test_transform = transforms.Compose(test_transform)
+        else:
+            train_transform = []
+            train_transform.extend([
+                transforms.Resize(Isize),
+                transforms.RandomHorizontalFlip(0.5),
+                transforms.ToTensor(),
+                normalize
+            ])
+            train_transform = transforms.Compose(train_transform)
+            test_transform = []
+            test_transform.extend([
+                transforms.Resize(Isize),
+                transforms.RandomHorizontalFlip(0.5),
+                transforms.ToTensor(),
+                normalize
+            ])
+            test_transform = transforms.Compose(test_transform)
     else:
-        train_transform = transforms.Compose([
-                                      transforms.Resize(Rsize),
-                                      transforms.CenterCrop(Isize),
-                                      transforms.ToTensor(),
-                                      normalize,
-                                  ])
-        test_transform = transforms.Compose([
-                                            transforms.Resize(Rsize),
-                                            transforms.CenterCrop(Isize),
-                                            transforms.ToTensor(),
-                                            normalize, ])
+        if opt.random_crop:
+            train_transform = transforms.Compose([
+                                          transforms.Resize(Rsize),
+                                          transforms.CenterCrop(Isize),
+                                          transforms.ToTensor(),
+                                          normalize,
+                                      ])
+            test_transform = transforms.Compose([
+                                                transforms.Resize(Rsize),
+                                                transforms.CenterCrop(Isize),
+                                                transforms.ToTensor(),
+                                                normalize, ])
+        else:
+            train_transform = transforms.Compose([
+                                          transforms.Resize(Isize),
+                                          transforms.ToTensor(),
+                                          normalize,
+                                      ])
+            test_transform = transforms.Compose([
+                                                transforms.Resize(Isize),
+                                                transforms.ToTensor(),
+                                                normalize, ])
 
-    # print("train_transform", train_transform)
-    # print("test_transform", test_transform)
     dataset_train = ImageFilelist(opt, data_inf=data,
                                   transform=train_transform,
                                   dataset=opt.dataset,
                                   image_type='trainval_loc')
     if opt.train_mode == 'distributed':
         train_label = dataset_train.image_labels
-        # print('len(train_label)', len(train_label))
+
         sampler = CategoriesSampler(
             train_label,
             n_batch=opt.n_batch,
@@ -392,8 +419,7 @@ def get_loader(opt, data):
             dataset_train,
             batch_size=opt.batch_size, shuffle=True,
             num_workers=4, pin_memory=True)
-    # print('dataset_train.__len__():', dataset_train.__len__())
-    # exit()
+
     dataset_test_unseen = ImageFilelist(opt, data_inf=data,
                                         transform=test_transform,
                                         dataset=opt.dataset,
@@ -402,15 +428,23 @@ def get_loader(opt, data):
         dataset_test_unseen,
         batch_size=opt.batch_size, shuffle=False,
         num_workers=4, pin_memory=True)
-
-    dataset_test_seen = ImageFilelist(opt, data_inf=data,
-                                      transform=transforms.Compose([
-                                          transforms.Resize(Rsize),
-                                          transforms.CenterCrop(Isize),
-                                          transforms.ToTensor(),
-                                          normalize, ]),
-                                      dataset=opt.dataset,
-                                      image_type='test_seen_loc')
+    if opt.random_crop:
+        dataset_test_seen = ImageFilelist(opt, data_inf=data,
+                                          transform=transforms.Compose([
+                                              transforms.Resize(Rsize),
+                                              transforms.CenterCrop(Isize),
+                                              transforms.ToTensor(),
+                                              normalize, ]),
+                                          dataset=opt.dataset,
+                                          image_type='test_seen_loc')
+    else:
+        dataset_test_seen = ImageFilelist(opt, data_inf=data,
+                                          transform=transforms.Compose([
+                                              transforms.Resize(Isize),
+                                              transforms.ToTensor(),
+                                              normalize, ]),
+                                          dataset=opt.dataset,
+                                          image_type='test_seen_loc')
     testloader_seen = torch.utils.data.DataLoader(
         dataset_test_seen,
         batch_size=opt.batch_size, shuffle=False,

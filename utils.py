@@ -137,26 +137,26 @@ def label_adjust(opt,scores,label_v,neighbor_label):
     other_labels = other_labels*(1-(opt.gamma*opt.delta/(opt.Lp1-opt.gamma)))
     expanded_label = torch.where(expanded_label==1,other_labels,expanded_label)
     return expanded_label.view(-1,opt.Lp1*opt.seen_classes)
-def Loss_fn(opt,label_v,neighbor_label,top_k,CAM_CRITERION,fg_feats,bg_feats,vlogits,vars):
+def Loss_fn(opt,label_v,neighbor_label,top_k,CAM_CRITERION,fg_feats,bg_feats,vlogits,vars,realtrain):
     loss = 0
     expanded_label = label_adjust(opt,top_k['cos'],label_v,neighbor_label)
 
     correct_in_top_k = (expanded_label * top_k['l2']).sum(-1)
     l_cls_l2 = -correct_in_top_k
     l_cls_l2 = l_cls_l2.mean()
-    loss += l_cls_l2
+    loss = loss + l_cls_l2
 
     correct_in_top_k = (expanded_label * (top_k['cos'])).sum(-1)
     l_cls_cos = -correct_in_top_k
     l_cls_cos = l_cls_cos.neg().log().neg()
     l_cls_cos = l_cls_cos.mean()
-    loss = loss + 0.05*l_cls_cos
+    loss = loss + opt.alpha1*l_cls_cos
 
     expanded_label_v = label_adjust(opt,vlogits,label_v,neighbor_label)
     l_reg = (expanded_label_v * vlogits).sum(-1)
     l_reg = -l_reg
     l_reg = l_reg.mean()
-    loss = loss+0.1*l_reg
+    loss = loss+opt.alpha2*l_reg
 
     loss1 = CAM_CRITERION[0](bg_feats)
     loss2 = CAM_CRITERION[1](bg_feats, fg_feats)
@@ -167,9 +167,9 @@ def Loss_fn(opt,label_v,neighbor_label,top_k,CAM_CRITERION,fg_feats,bg_feats,vlo
         correct_in_top_k = (expanded_label * top_k['cos_']).sum(-1)
         multy_loss = -correct_in_top_k
         l1 = multy_loss.mean()
-        loss += 0.1 * l1
-
-        weight_final = vars.activation_head.weight
-        reg_loss = 5e-5 * weight_final.norm(2)
-        loss += reg_loss
+        loss += opt.alpha3 * l1
+        if realtrain:
+            weight_final = vars.activation_head.weight
+            reg_loss = 5e-5 * weight_final.norm(2)
+            loss += reg_loss
     return loss

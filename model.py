@@ -107,12 +107,6 @@ class Encoder(nn.Module):
         self.CNmodel = CNZSLModel(opt.att_size,4096,2048)
         self.vars = VARS(cin=2048,opt=opt)
         self.opt = opt
-    def cam(self,weights, feature_map):
-        batch_cams = (weights.unsqueeze(-1).unsqueeze(-1) * feature_map.squeeze(0)).sum(1).view(feature_map.shape[0], 1, args['kernel'], args['kernel'])
-        batch_cams = torch.sigmoid(F.relu(batch_cams, inplace=True))
-        fg_feature = batch_cams * feature_map
-        bg_feature = (1 - batch_cams) * feature_map
-        return fg_feature, bg_feature, batch_cams
 
     def cal_logits(self,visual_feature,visual_protos):
         logits = dict()
@@ -176,9 +170,23 @@ class Encoder(nn.Module):
     def fix(self):
         for p in self.resnet.parameters():
             p.requires_grad = False
+        for c in self.vars.parameters():
+            c.requires_grad = False
     def nfix(self):
-        for p in self.resnet.parameters():
-            p.requires_grad = True
+        if self.opt.train_whole_resnet:
+            for p in self.resnet.parameters():
+                p.requires_grad = True
+            for p2 in self.vars.parameters():
+                p2.requires_grad = True
+        else:
+            for p in self.resnet.parameters():
+                p.requires_grad = False
+
+            for c in list(self.resnet.children())[5:]:
+                for p in c.parameters():
+                    p.requires_grad = True
+            for p2 in self.vars.parameters():
+                p2.requires_grad = True
 
 
 class ClassStandardization(nn.Module):
