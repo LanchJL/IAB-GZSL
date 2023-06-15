@@ -2,8 +2,8 @@ import argparse
 def get_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default='AWA2', help='FLO, CUB')
-    parser.add_argument('--root', default='/media/yujiaguo/29719e14-8bb8-4829-90a4-727c2e661fc4/JCY/IJCV/IJCV_OS/', help='path to project')
-    parser.add_argument('--image_root', default='/media/yujiaguo/29719e14-8bb8-4829-90a4-727c2e661fc4/JCY/dataset/', type=str, metavar='PATH',
+    parser.add_argument('--root', default='', help='path to project')
+    parser.add_argument('--image_root', default='', type=str, metavar='PATH',
                         help='path to image root')
     parser.add_argument('--matdataset', default=True, help='Data in matlab format')
     parser.add_argument('--image_embedding', default='res101')
