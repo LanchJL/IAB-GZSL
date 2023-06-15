@@ -3,6 +3,7 @@ import numpy as np
 from DataSet import map_label
 import torch.nn as nn
 import torch.nn.functional as F
+import random
 class Result(object):
     def __init__(self):
         self.best_acc = 0.0
@@ -89,6 +90,22 @@ def test_gzsl(opt, model, testloader, attribute, test_classes):
         return acc_all * 100,acc_layer_all*100
     else:
         return acc_avg * 100,acc_layer_avg*100
+
+def divide_into_groups(n=512, k=20):
+    group = {}
+    nums_per_group = n // k  # 计算每份的整数数量
+    remainder = n % k  # 计算剩余的整数数量
+
+    start_num = 0
+    for i in range(k):
+        if i < remainder:
+            end_num = start_num + nums_per_group + 1  # 对于剩余的组，每组多分配一个整数
+        else:
+            end_num = start_num + nums_per_group
+        group[i] = list(range(start_num, end_num))
+        start_num = end_num
+
+    return group
 
 
 def cos_similarity(fg,bg):

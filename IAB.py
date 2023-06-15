@@ -9,7 +9,7 @@ import json
 import os
 import torch.nn as nn
 from model import Encoder,NAA
-from utils import Result,test_gzsl,Loss_fn,SimMaxLoss,SimMinLoss
+from utils import Result,test_gzsl,Loss_fn,SimMaxLoss,SimMinLoss,divide_into_groups
 import torch.optim as optim
 from torch.autograd import Variable
 import torch.nn.functional as F
@@ -53,25 +53,35 @@ trainloader, testloader_unseen, testloader_seen, visloader = get_loader(opt, dat
 # define attribute groups
 if opt.dataset == 'CUB':
     parts = ['head', 'belly', 'breast', 'belly', 'wing', 'tail', 'leg', 'others']
-    group_dic = json.load(open(os.path.join(opt.root, 'data', opt.dataset, 'attri_groups_8.json')))
+    if opt.random_grouping:
+        group_dic = divide_into_groups(opt.att_size,opt.Lp1-1)
+    else:
+        group_dic = json.load(open(os.path.join(opt.root, 'data', opt.dataset, 'attri_groups_8.json')))
+
     opt.resnet_path = 'pretrained_models/resnet101_c.pth.tar'
 elif opt.dataset == 'AWA2':
     parts = ['color', 'texture', 'shape', 'body_parts', 'behaviour', 'nutrition', 'activativity', 'habitat',
              'character']
-    group_dic = json.load(open(os.path.join(opt.root, 'data', opt.dataset, 'attri_groups_9.json')))
+    if opt.random_grouping:
+        group_dic = divide_into_groups(opt.att_size,opt.Lp1-1)
+    else:
+        group_dic = json.load(open(os.path.join(opt.root, 'data', opt.dataset, 'attri_groups_9.json')))
     opt.resnet_path = 'pretrained_models/resnet101-5d3b4d8f.pth'
 elif opt.dataset == 'SUN':
     parts = ['functions', 'materials', 'surface_properties', 'spatial_envelope']
-    group_dic = json.load(open(os.path.join(opt.root, 'data', opt.dataset, 'attri_groups_4.json')))
+    if opt.random_grouping:
+        group_dic = divide_into_groups(opt.att_size,opt.Lp1-1)
+    else:
+        group_dic = json.load(open(os.path.join(opt.root, 'data', opt.dataset, 'attri_groups_4.json')))
     opt.resnet_path = 'pretrained_models/resnet101-5d3b4d8f.pth'
 else:
     opt.resnet_path = 'pretrained_models/resnet101-5d3b4d8f.pth'
     parts = []
-    group_dic = []
+    group_dic = divide_into_groups(opt.att_size,opt.Lp1-1)
 
 # prepare the attribute labels
 class_attribute = data.attribute
-
+print('Groups nubmer:', len(group_dic))
 print('Create Model...')
 model = Encoder(opt)
 NAA_model = NAA(opt,group_dic,data)
