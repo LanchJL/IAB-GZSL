@@ -27,7 +27,7 @@ python test.py --att_size 85 --image_size 224 --calibrated_stacking 2.0 --seen_c
 ## Train
 If you wish to try training our model from scratch, please run IAB.py, for example:
 ```shell
-python IAB.py --att_size 85 --image_size 224 --t 8 --Lp1 10 --gamma 2 --delta 2.0 --calibrated_stacking 2.0 --seen_classes 40 --nclasses 50
+python IAB.py --att_size 85 --image_size 224 --t 8  --gamma 2 --delta 2.0 --calibrated_stacking 2.0 --seen_classes 40 --nclasses 50
 ```
 
 ## Acknowledgment
