@@ -64,11 +64,6 @@ model.eval()
 attribute_gzsl = class_attribute.T
 acc_GZSL_H, acc_GZSL_seen, acc_GZSL_unseen = test_gzsl(opt, model, testloader_seen, testloader_unseen,
                                                        attribute_gzsl, data.seenclasses, data.unseenclasses)
-
-if acc_GZSL_H > result_gzsl.best_acc:
-    model_save_path = os.path.join('./out/{}_GZSL_id_{}.pth'.format(opt.dataset, opt.train_id))
-    torch.save(model.state_dict(), model_save_path)
-    print('model saved to:', model_save_path)
 result_gzsl.update_gzsl(epoch + 1, acc_GZSL_unseen, acc_GZSL_seen, acc_GZSL_H)
 print('\n[Epoch {}] GZSL test accuracy is Unseen: {:.1f} Seen: {:.1f} H:{:.1f}'
       '\n           Best_H [Unseen: {:.1f}% Seen: {:.1f}% H: {:.1f}% | Epoch-{}]'.
