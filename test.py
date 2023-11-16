@@ -60,18 +60,10 @@ model.load_state_dict(torch.load(opt.model_path))
 
 model.eval()
 epoch=0
+model.eval()
 attribute_gzsl = class_attribute.T
-acc_GZSL_unseen,layer_acc_unseen = test_gzsl(opt, model, testloader_unseen, attribute_gzsl, data.unseenclasses)
-acc_GZSL_seen,layer_acc_seen = test_gzsl(opt, model, testloader_seen, attribute_gzsl, data.seenclasses)
-if (acc_GZSL_unseen + acc_GZSL_seen) == 0:
-    acc_GZSL_H = 0
-else:
-    acc_GZSL_H = 2 * acc_GZSL_unseen * acc_GZSL_seen / (
-            acc_GZSL_unseen + acc_GZSL_seen)
-if (layer_acc_unseen + layer_acc_seen) == 0:
-    acc_layer_H = 0
-else:
-    acc_layer_H = 2 * layer_acc_unseen * layer_acc_seen / (layer_acc_unseen + layer_acc_seen)
+acc_GZSL_H, acc_GZSL_seen, acc_GZSL_unseen = test_gzsl(opt, model, testloader_seen, testloader_unseen,
+                                                       attribute_gzsl, data.seenclasses, data.unseenclasses)
 
 if acc_GZSL_H > result_gzsl.best_acc:
     model_save_path = os.path.join('./out/{}_GZSL_id_{}.pth'.format(opt.dataset, opt.train_id))
