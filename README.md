@@ -1,5 +1,5 @@
 # Estimation of Near-Instance-Level Attribute Bottleneck for Zero-Shot Learning (IAB)
-Codes of Estimation of Near-Instance-Level Attribute Bottleneck for Zero-Shot Learning
+Codes of [Estimation of Near-Instance-Level Attribute Bottleneck for Zero-Shot Learning (IJCV 2024)](https://link.springer.com/article/10.1007/s11263-024-02021-x)
 
 ## Installation
 ```shell
